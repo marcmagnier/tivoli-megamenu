@@ -1,0 +1,11 @@
+# Archives de distribution
+*.zip
+# OS / éditeurs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# Environnement local
+node_modules/
+.wp-env.override.json
+.claude/settings.local.json
