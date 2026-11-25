@@ -317,7 +317,7 @@
 	--tmm-tb-ink: #1E4E5A;        /* liens et icônes */
 	--tmm-tb-red: #EC3A3A;        /* bouton rouge */
 	--tmm-tb-teal: #134B52;       /* bouton pétrole */
-	--tmm-tb-gap: 24px;
+	--tmm-tb-gap: 16px;        /* la rangée Divi est limitée à 1080 px */
 	font-family: inherit;
 }
 .tmm-topbar__list {
@@ -328,7 +328,7 @@
 .tmm-topbar .tmm-topbar__link {
 	display: inline-flex; align-items: center; gap: 8px; min-height: 40px;
 	color: var(--tmm-tb-ink) !important;  /* le thème enfant force la couleur des liens */
-	font-size: 16px; font-weight: 400; line-height: 1.2; text-decoration: none; white-space: nowrap;
+	font-size: 15px; font-weight: 400; line-height: 1.2; text-decoration: none; white-space: nowrap;
 }
 .tmm-topbar .tmm-topbar__link:hover { color: var(--tmm-tb-red) !important; }
 .tmm-topbar .tmm-topbar__link:focus-visible { outline: 3px solid var(--tmm-tb-ink); outline-offset: 2px; }
@@ -341,13 +341,15 @@
 /* Boutons */
 .tmm-topbar .tmm-btn-red .tmm-topbar__link,
 .tmm-topbar .tmm-btn-teal .tmm-topbar__link {
-	padding: 0 16px; border-radius: 4px; color: #fff !important;
+	gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 4px; color: #fff !important; font-size: 14px;
 }
+.tmm-topbar .tmm-btn-red .tmm-ico i,
+.tmm-topbar .tmm-btn-teal .tmm-ico i { font-size: 16px !important; }
 .tmm-topbar .tmm-btn-red .tmm-topbar__link { background: var(--tmm-tb-red); }
 .tmm-topbar .tmm-btn-teal .tmm-topbar__link { background: var(--tmm-tb-teal); }
 .tmm-topbar .tmm-btn-red .tmm-topbar__link:hover,
 .tmm-topbar .tmm-btn-teal .tmm-topbar__link:hover { color: #fff !important; filter: brightness(1.12); }
-.tmm-topbar .tmm-btn-red + .tmm-btn-teal { margin-left: calc(14px - var(--tmm-tb-gap)); }
+.tmm-topbar .tmm-btn-red + .tmm-btn-teal { margin-left: calc(10px - var(--tmm-tb-gap)); }
 
 /* Icône seule (réseaux sociaux, ou « Masquer le libellé » dans Menu Icons) */
 .tmm-topbar .is-icon-only .tmm-topbar__link { justify-content: center; min-width: 40px; }
@@ -363,10 +365,6 @@
 .tmm-topbar .tmm-social a:hover { opacity: .75; }
 
 /* Écrans moyens et mobile : les liens simples passent en icône seule, les boutons restent lisibles */
-@media (max-width: 1500px) {
-	.tmm-topbar { --tmm-tb-gap: 16px; }
-	.tmm-topbar .tmm-topbar__link { font-size: 15px; }
-}
 @media (max-width: 1200px) {
 	.tmm-topbar__item:not(.tmm-btn-red):not(.tmm-btn-teal) .has-ico { min-width: 40px; justify-content: center; }
 	.tmm-topbar__item:not(.tmm-btn-red):not(.tmm-btn-teal) .has-ico .tmm-label {

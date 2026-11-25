@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.2.0, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.2.1, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -189,6 +189,7 @@ Variables : `--tmm-tb-ink`, `--tmm-tb-red`, `--tmm-tb-teal`, `--tmm-tb-gap` sur 
 
 ### Historique
 
+- **0.2.1** : barre supérieure plus compacte (boutons en 14 px, marges réduites, espacement de 16 px). Elle tient sur une ligne dans la rangée Divi de 1080 px.
 - **0.2.0** : nouveau shortcode `[tivoli_topbar]` (barre supérieure, emplacement `tmm_topbar`). Boutons et réseaux sociaux via le champ « Classes CSS », icônes via Menu Icons, responsive jusqu'à 375 px. Le mega menu n'est pas modifié.
 - **0.1.5** : prise en charge du plugin « Menu Icons » (Codeinwp). L'icône choisie sur un élément de menu s'affiche devant son libellé (accès directs en pastille, chips et liens en petit format). Sans le plugin, rien ne change.
 - **0.1.4** : la recherche envoie vers la page de résultats personnalisée `/resultat-de-la-recherche/?asp=` (filtres `tmm_search_action` et `tmm_search_param`).
