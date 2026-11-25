@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.3
+ * Version:           0.1.4
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.3' );
+define( 'TMM_VERSION', '0.1.4' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -336,11 +336,15 @@ function tmm_footer() {
 	$n++;
 	$id      = 'tmm-s-' . $n;
 	$popular = tmm_tree( 'tmm_popular' );
+	// Page de résultats personnalisée (Ajax Search Pro) : /resultat-de-la-recherche/?asp=…
+	// Modifiable via les filtres tmm_search_action et tmm_search_param.
+	$action  = apply_filters( 'tmm_search_action', home_url( '/resultat-de-la-recherche/' ) );
+	$param   = apply_filters( 'tmm_search_param', 'asp' );
 	$html    = '<div class="tmm-foot"><div class="tmm-foot__inner">';
-	$html   .= '<form class="tmm-search" role="search" method="get" action="' . esc_url( home_url( '/' ) ) . '">';
+	$html   .= '<form class="tmm-search" role="search" method="get" action="' . esc_url( $action ) . '">';
 	$html   .= '<label for="' . esc_attr( $id ) . '">Vous ne trouvez pas ?</label>';
 	$html   .= '<span class="tmm-search__field"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
-	$html   .= '<input type="search" id="' . esc_attr( $id ) . '" name="s" placeholder="Un service, un médecin, une pathologie…"></span>';
+	$html   .= '<input type="search" id="' . esc_attr( $id ) . '" name="' . esc_attr( $param ) . '" placeholder="Un service, un médecin, une pathologie…"></span>';
 	$html   .= '<button type="submit" class="tmm-search__btn">Rechercher</button></form>';
 	if ( $popular ) {
 		$html .= '<div class="tmm-popular"><span>Recherches fréquentes :</span>';
