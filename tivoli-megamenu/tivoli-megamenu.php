@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.0
+ * Version:           0.1.1
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.0' );
+define( 'TMM_VERSION', '0.1.1' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------

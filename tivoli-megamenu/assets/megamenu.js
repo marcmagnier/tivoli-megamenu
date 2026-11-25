@@ -10,7 +10,20 @@
 		return el && el.querySelector('a[href], button:not([hidden]), input');
 	}
 
+	// Remonte les parents positionnés du menu (jusqu'au header) au-dessus du reste de la page,
+	// sinon le panneau reste piégé dans leur contexte d'empilement (voir megamenu.css).
+	function lift(nav) {
+		var el = nav.parentElement;
+		while (el && el !== document.body) {
+			var cs = window.getComputedStyle(el);
+			if (cs.position !== 'static' || cs.zIndex !== 'auto') el.classList.add('tmm-lift');
+			if (el.matches('.et-l--header, header, #main-header')) break;
+			el = el.parentElement;
+		}
+	}
+
 	function init(nav) {
+		lift(nav);
 		var tops = Array.prototype.slice.call(nav.querySelectorAll('.tmm-top__btn'));
 		var burger = nav.querySelector('.tmm-burger');
 		var openBtn = null;

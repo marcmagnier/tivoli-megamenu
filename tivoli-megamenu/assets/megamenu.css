@@ -21,6 +21,22 @@
 .tmm button { font: inherit; cursor: pointer; }
 .tmm :focus-visible { outline: 3px solid var(--tmm-teal); outline-offset: 2px; }
 
+/* ---------- Empilement dans le header Divi ----------
+   Le z-index du panneau ne vaut qu'à l'intérieur du contexte d'empilement de ses parents.
+   Divi en crée plusieurs (ligne en z-index: 4, sections, modules...) : le panneau passait
+   alors sous d'autres éléments du header ou de la page. On remonte donc tous les parents
+   du menu jusqu'au header. :has() couvre les navigateurs récents dès le chargement ;
+   megamenu.js ajoute la classe .tmm-lift sur les parents pour les autres cas. */
+.et-l--header:has(.tmm),
+.et_pb_section:has(.tmm),
+.et_pb_row:has(.tmm),
+.et_pb_column:has(.tmm),
+.et_pb_module:has(.tmm),
+.tmm-lift {
+	z-index: 99990 !important;  /* !important : écrase les z-index en ligne posés par Divi */
+	overflow: visible !important;
+}
+
 /* ---------- Barre principale ---------- */
 .tmm-burger { display: none; }
 .tmm-bar { display: flex; flex-wrap: wrap; align-items: stretch; gap: 4px; }
