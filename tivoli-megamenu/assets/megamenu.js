@@ -31,6 +31,7 @@
 	function init(nav) {
 		var host = lift(nav);
 		var bar = nav.querySelector('.tmm-bar');
+		var header = nav.closest ? nav.closest('.tmm-header') : null;
 		var tops = Array.prototype.slice.call(nav.querySelectorAll('.tmm-top__btn'));
 		var burger = nav.querySelector('.tmm-burger');
 		var panels = Array.prototype.slice.call(nav.querySelectorAll('.tmm-panel'));
@@ -53,7 +54,9 @@
 			var a = anchor.getBoundingClientRect();
 			var b = bar.getBoundingClientRect();
 			panel.style.top = Math.round(b.bottom - a.top) + 'px';
-			if (host) panel.style.setProperty('--tmm-max', Math.round(b.width + 64) + 'px');
+			// Avec [tivoli_header], le contenu du panneau s'aligne sur tout l'en-tête (logo compris).
+			var ref = header ? header.getBoundingClientRect() : b;
+			if (host) panel.style.setProperty('--tmm-max', Math.round(ref.width + 64) + 'px');
 		}
 
 		/* Mise en page selon le mode.
@@ -165,6 +168,8 @@
 			burger.addEventListener('click', function () {
 				var on = burger.getAttribute('aria-expanded') !== 'true';
 				burger.setAttribute('aria-expanded', on ? 'true' : 'false');
+				// La feuille s'ouvre juste sous l'en-tête, quelle que soit sa hauteur.
+				if (on) bar.style.top = Math.max(0, Math.round((header || nav).getBoundingClientRect().bottom)) + 'px';
 				nav.classList.toggle('is-mobile-open', on);
 				document.documentElement.classList.toggle('tmm-lock', on);
 				if (!on && openBtn) close(openBtn, false);
@@ -188,6 +193,7 @@
 		var onChange = function () {
 			if (openBtn) close(openBtn, false);
 			if (burger && !isMobile() && nav.classList.contains('is-mobile-open')) burger.click();
+			bar.style.top = '';
 			layout();
 		};
 		if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);

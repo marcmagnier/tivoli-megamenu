@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Tivoli Mega Menu
- * Description:       Mega menu « maître-détail » et barre supérieure, pilotés depuis Apparence › Menus. Shortcodes [tivoli_megamenu] et [tivoli_topbar] (ex. dans le header du Divi Theme Builder).
- * Version:           0.2.2
+ * Description:       Mega menu « maître-détail », barre supérieure et en-tête complet, pilotés depuis Apparence › Menus. Shortcodes [tivoli_header] (tout l’en-tête), [tivoli_megamenu] et [tivoli_topbar].
+ * Version:           0.3.0
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.2.2' );
+define( 'TMM_VERSION', '0.3.0' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -209,6 +209,16 @@ add_action( 'wp_enqueue_scripts', function () {
 add_shortcode( 'tivoli_megamenu', 'tmm_render' );
 
 function tmm_render() {
+	return tmm_render_nav();
+}
+
+/**
+ * @param array $extra  'logo' : <li> placé en tête de l'arbre mobile ;
+ *                      'util' : <li> ajoutés après les entrées principales (mobile) ;
+ *                      'tail' : <li> ajoutés tout en bas de l'arbre (mobile).
+ */
+function tmm_render_nav( $extra = array() ) {
+	$extra = wp_parse_args( $extra, array( 'logo' => '', 'util' => '', 'tail' => '' ) );
 	$tree = tmm_tree( 'tmm_main' );
 	if ( ! $tree ) {
 		return current_user_can( 'edit_theme_options' )
@@ -227,6 +237,7 @@ function tmm_render() {
 			<span class="tmm-burger__icon" aria-hidden="true"></span><span class="tmm-burger__label">Menu</span>
 		</button>
 		<ul class="tmm-bar" id="tmm-bar">
+			<?php echo $extra['logo']; // phpcs:ignore -- HTML construit par le plugin ?>
 			<?php foreach ( $tree as $top ) :
 				$is_current = ! empty( $top->current ) || ! empty( $top->current_item_ancestor );
 				$classes    = 'tmm-top' . ( $is_current ? ' is-current' : '' ) . ( $top->tmm_children ? ' has-panel' : '' );
@@ -308,8 +319,10 @@ function tmm_render() {
 				<?php endif; ?>
 				</li>
 			<?php endforeach; ?>
+			<?php echo $extra['util']; // phpcs:ignore -- HTML construit par le plugin ?>
 			<?php // Mobile uniquement : accès directs et recherche, une seule fois en bas de l'arbre. ?>
 			<li class="tmm-mobile-extra"><?php echo $aside_extra . tmm_footer(); // phpcs:ignore -- HTML déjà échappé ?></li>
+			<?php echo $extra['tail']; // phpcs:ignore -- HTML construit par le plugin ?>
 		</ul>
 	</nav>
 	<?php
@@ -402,40 +415,59 @@ function tmm_social_networks() {
 	);
 }
 
-function tmm_topbar_social( $atts ) {
-	$html = '';
-	foreach ( tmm_social_networks() as $key => $n ) {
+/** Liens des réseaux : valeurs par défaut (filtre tmm_social_links) + attributs du shortcode. */
+function tmm_social_atts( $atts, $extra_defaults = array(), $tag = 'tivoli_topbar' ) {
+	$defaults = apply_filters(
+		'tmm_social_links',
+		array(
+			'facebook'  => 'https://www.facebook.com/chutivoli',
+			'linkedin'  => 'https://www.linkedin.com/company/chu-tivoli',
+			'youtube'   => 'https://www.youtube.com/@chutivoli8915',
+			'instagram' => 'https://www.instagram.com/chutivoli',
+		)
+	);
+	return shortcode_atts( array_merge( $defaults, $extra_defaults ), (array) $atts, $tag );
+}
+
+/** Liens des réseaux (<a> avec SVG coloré). Un identifiant de dégradé unique par appel. */
+function tmm_social_links( $atts, $a_class ) {
+	static $n = 0;
+	$n++;
+	$out = array();
+	foreach ( tmm_social_networks() as $key => $net ) {
 		$url = trim( (string) $atts[ $key ] );
 		if ( '' === $url ) {
 			continue;
 		}
-		$defs = 'instagram' === $key
-			? '<defs><linearGradient id="tmm-ig" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".35" stop-color="#FA7E1E"/><stop offset=".6" stop-color="#D62976"/><stop offset=".85" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs>'
-			: '';
-		$html .= '<li class="tmm-topbar__item tmm-social tmm-social--' . esc_attr( $key ) . '">'
-			. '<a class="tmm-topbar__link" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">'
-			. '<svg class="tmm-social__svg" viewBox="' . esc_attr( $n[2] ) . '" aria-hidden="true" focusable="false">' . $defs
-			. '<path fill="' . esc_attr( $n[1] ) . '" d="' . esc_attr( $n[3] ) . '"/></svg>'
-			. '<span class="tmm-sr">' . esc_html( $n[0] ) . '</span></a></li>';
+		$fill = $net[1];
+		$defs = '';
+		if ( 'instagram' === $key ) {
+			$gid  = 'tmm-ig-' . $n;
+			$fill = 'url(#' . $gid . ')';
+			$defs = '<defs><linearGradient id="' . $gid . '" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#FEDA75"/><stop offset=".35" stop-color="#FA7E1E"/><stop offset=".6" stop-color="#D62976"/><stop offset=".85" stop-color="#962FBF"/><stop offset="1" stop-color="#4F5BD5"/></linearGradient></defs>';
+		}
+		$out[ $key ] = '<a class="' . esc_attr( $a_class ) . ' tmm-social--' . esc_attr( $key ) . '" href="' . esc_url( $url ) . '" target="_blank" rel="noopener">'
+			. '<svg class="tmm-social__svg" viewBox="' . esc_attr( $net[2] ) . '" aria-hidden="true" focusable="false">' . $defs
+			. '<path fill="' . esc_attr( $fill ) . '" d="' . esc_attr( $net[3] ) . '"/></svg>'
+			. '<span class="tmm-sr">' . esc_html( $net[0] ) . '</span></a>';
 	}
-	return $html;
+	return $out;
 }
 
-function tmm_topbar_render( $atts = array() ) {
-	$atts = shortcode_atts(
-		apply_filters(
-			'tmm_social_links',
-			array(
-				'facebook'  => 'https://www.facebook.com/chutivoli',
-				'linkedin'  => 'https://www.linkedin.com/company/chu-tivoli',
-				'youtube'   => 'https://www.youtube.com/@chutivoli8915',
-				'instagram' => 'https://www.instagram.com/chutivoli',
-			)
-		),
-		$atts,
-		'tivoli_topbar'
-	);
-	$items = tmm_tree( 'tmm_topbar' );
+/** Éléments du menu « Barre supérieure », sans ceux qui pointent vers un réseau social (gérés par le plugin). */
+function tmm_topbar_items() {
+	$items = array();
+	foreach ( tmm_tree( 'tmm_topbar' ) as $it ) {
+		if ( in_array( 'tmm-social', (array) $it->classes, true ) || preg_match( '/facebook|linkedin|youtube|instagram/i', (string) $it->url ) ) {
+			continue;
+		}
+		$items[] = $it;
+	}
+	return $items;
+}
+
+function tmm_topbar_html( $atts ) {
+	$items = tmm_topbar_items();
 	if ( ! $items ) {
 		return current_user_can( 'edit_theme_options' )
 			? '<p><strong>Tivoli Mega Menu :</strong> assignez un menu à l’emplacement « Barre supérieure » (Apparence › Menus).</p>'
@@ -446,10 +478,6 @@ function tmm_topbar_render( $atts = array() ) {
 	$allowed = array( 'tmm-btn-red', 'tmm-btn-teal' );
 	$html    = '<nav class="tmm-topbar" aria-label="' . esc_attr__( 'Liens utiles', 'tivoli-megamenu' ) . '"><ul class="tmm-topbar__list">';
 	foreach ( $items as $it ) {
-		// Réseaux sociaux : gérés par le plugin, on ignore les éléments du menu qui y pointent.
-		if ( in_array( 'tmm-social', (array) $it->classes, true ) || preg_match( '/facebook|linkedin|youtube|instagram/i', (string) $it->url ) ) {
-			continue;
-		}
 		$classes = array_intersect( (array) $it->classes, $allowed );
 		if ( class_exists( 'Menu_Icons_Meta' ) ) {
 			$meta = Menu_Icons_Meta::get( $it->ID );
@@ -461,5 +489,70 @@ function tmm_topbar_render( $atts = array() ) {
 		$html .= tmm_link( $it, 'tmm-topbar__link' );
 		$html .= '</li>';
 	}
-	return $html . tmm_topbar_social( $atts ) . '</ul></nav>';
+	foreach ( tmm_social_links( $atts, 'tmm-topbar__link' ) as $key => $a ) {
+		$html .= '<li class="tmm-topbar__item tmm-social">' . $a . '</li>';
+	}
+	return $html . '</ul></nav>';
+}
+
+function tmm_topbar_render( $atts = array() ) {
+	return tmm_topbar_html( tmm_social_atts( $atts ) );
+}
+
+/* -------------------------------------------------------------------------
+ * 6. En-tête complet (shortcode [tivoli_header])
+ *
+ * Un seul shortcode pour tout le header : barre supérieure + logo + mega menu.
+ *   Desktop : 1re ligne = barre supérieure (alignée à droite) ;
+ *             2e ligne = logo à gauche, mega menu à droite.
+ *   Mobile (≤ 980 px) : « CHU Tivoli » en texte discret + bouton Menu.
+ *             Dans l'arbre : le logo en tête, puis les entrées principales,
+ *             les liens de la barre supérieure (sans boutons colorés),
+ *             accès directs et recherche, et les 4 réseaux sur toute la largeur.
+ *
+ *   [tivoli_header logo="…" name="CHU Tivoli" facebook="…" linkedin="…" youtube="…" instagram="…"]
+ * ---------------------------------------------------------------------- */
+add_shortcode( 'tivoli_header', 'tmm_header_render' );
+
+function tmm_header_render( $atts = array() ) {
+	$atts = tmm_social_atts(
+		$atts,
+		array(
+			'logo' => '/wp-content/uploads/2026/01/logo-tivoli-acc.png',
+			'name' => 'CHU Tivoli',
+		),
+		'tivoli_header'
+	);
+	$home = home_url( '/' );
+	$logo = trim( (string) $atts['logo'] );
+	if ( $logo && '/' === $logo[0] ) {
+		$logo = home_url( $logo );
+	}
+	$img = $logo
+		? '<img src="' . esc_url( $logo ) . '" alt="' . esc_attr( $atts['name'] . ' – accueil' ) . '" width="668" height="180">'
+		: esc_html( $atts['name'] );
+
+	// Mobile : liens de la barre supérieure, à la suite des entrées principales.
+	$util = '';
+	foreach ( tmm_topbar_items() as $it ) {
+		$util .= '<li class="tmm-top tmm-m-only tmm-m-util">' . tmm_link( $it, 'tmm-top__link' ) . '</li>';
+	}
+	$social = tmm_social_links( $atts, 'tmm-m-social__link' );
+
+	$nav = tmm_render_nav(
+		array(
+			'logo' => $logo ? '<li class="tmm-m-only tmm-m-logo"><a href="' . esc_url( $home ) . '">' . $img . '</a></li>' : '',
+			'util' => $util,
+			'tail' => $social ? '<li class="tmm-m-only tmm-m-social">' . implode( '', $social ) . '</li>' : '',
+		)
+	);
+	wp_enqueue_style( 'tmm' );
+
+	return '<div class="tmm-header">'
+		. '<div class="tmm-header__top">' . tmm_topbar_html( $atts ) . '</div>'
+		. '<div class="tmm-header__main">'
+		. '<a class="tmm-header__logo" href="' . esc_url( $home ) . '">' . $img . '</a>'
+		. '<a class="tmm-header__name" href="' . esc_url( $home ) . '">' . esc_html( $atts['name'] ) . '</a>'
+		. $nav
+		. '</div></div>';
 }

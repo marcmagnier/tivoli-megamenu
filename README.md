@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.2.2, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.3.0, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -179,6 +179,31 @@ Comportement responsive :
 
 Variables : `--tmm-tb-ink`, `--tmm-tb-red`, `--tmm-tb-teal`, `--tmm-tb-gap` sur `.tmm-topbar`.
 
+### En-tête complet (`[tivoli_header]`) – recommandé
+
+Un seul shortcode pour tout le header : barre supérieure, logo et mega menu. Plus besoin de colonnes Divi : une section, une rangée, un module Code.
+
+```
+[tivoli_header]
+[tivoli_header logo="/wp-content/uploads/2026/01/logo-tivoli-acc.png" name="CHU Tivoli" instagram=""]
+```
+
+| Attribut | Rôle | Défaut |
+|---|---|---|
+| `logo` | URL du logo (relative au site ou absolue) | `/wp-content/uploads/2026/01/logo-tivoli-acc.png` |
+| `name` | texte affiché sur mobile, et texte alternatif du logo | `CHU Tivoli` |
+| `facebook`, `linkedin`, `youtube`, `instagram` | liens des réseaux ; vide = masqué | pages du CHU Tivoli |
+
+- **Desktop** : 1re ligne = barre supérieure, alignée à droite. 2e ligne = logo à gauche (80 px de haut, 64 px entre 981 et 1180 px), mega menu à droite. S'il manque de place, le menu passe sous le logo plutôt que de se replier. La rangée Divi est élargie à 1320 px (94 %).
+- **Mobile (≤ 980 px)** : « CHU Tivoli » en texte discret (police du site) et le bouton Menu. L'arbre s'ouvre juste sous l'en-tête, dans cet ordre :
+  1. le logo ;
+  2. les entrées principales (accordéon) ;
+  3. les liens de la barre supérieure, en lignes discrètes avec leur icône (les boutons rouge et pétrole n'y sont pas colorés) ;
+  4. accès directs et recherche ;
+  5. les 4 réseaux sociaux, sur toute la largeur.
+
+`[tivoli_megamenu]` et `[tivoli_topbar]` restent disponibles séparément.
+
 ## 6. Accessibilité (exigences)
 
 - Les déclencheurs sont de vrais `<button>`, avec `aria-expanded` et `aria-controls`. Les liens sont de vrais `<a href>`.
@@ -195,6 +220,7 @@ Variables : `--tmm-tb-ink`, `--tmm-tb-red`, `--tmm-tb-teal`, `--tmm-tb-gap` sur 
 
 ### Historique
 
+- **0.3.0** : nouveau shortcode `[tivoli_header]` (barre supérieure + logo + mega menu, sans colonnes Divi). Mobile : « CHU Tivoli » + Menu ; logo en tête de l'arbre, liens de la barre supérieure et réseaux sociaux en bas. Taille du niveau 1 identique pour liens et boutons.
 - **0.2.2** : réseaux sociaux intégrés au plugin (icônes SVG colorées, liens réglables dans le shortcode). Écart icône-texte réduit, rangée Divi de la barre élargie à 1320 px. Mega menu : texte en 15 px, marges et espacement des lettres réduits, palier en 14 px entre 981 et 1180 px, pour tenir sur une ligne à côté des logos.
 - **0.2.1** : barre supérieure plus compacte (boutons en 14 px, marges réduites, espacement de 16 px). Elle tient sur une ligne dans la rangée Divi de 1080 px.
 - **0.2.0** : nouveau shortcode `[tivoli_topbar]` (barre supérieure, emplacement `tmm_topbar`). Boutons et réseaux sociaux via le champ « Classes CSS », icônes via Menu Icons, responsive jusqu'à 375 px. Le mega menu n'est pas modifié.
