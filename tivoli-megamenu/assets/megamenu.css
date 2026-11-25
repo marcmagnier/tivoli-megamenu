@@ -96,7 +96,6 @@
 	max-width: var(--tmm-max); margin: 0 auto; padding: 0 32px;
 	display: grid; grid-template-columns: 280px minmax(0, 1fr);
 }
-.tmm-back { display: none; }
 .tmm-eyebrow {
 	font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
 	color: var(--tmm-muted); padding: 0 16px 10px;
@@ -195,7 +194,12 @@
 	.tmm-detail__aside { border-left: 0; padding: 0 36px 28px; flex-direction: row; flex-wrap: wrap; }
 }
 
-/* ---------- Mobile : navigation en tiroirs ---------- */
+.tmm-mobile-extra { display: none; }
+
+/* ---------- Mobile : arbre dépliable simple ----------
+   Une seule colonne. Chaque niveau s'ouvre sous son bouton :
+   Entrée (niveau 1) › Rubrique (niveau 2) › liens. Pas de tiroirs, pas de bouton retour.
+   megamenu.js déplace chaque détail sous le bouton de sa rubrique. */
 @media (max-width: 980px) {
 	html.tmm-lock, html.tmm-lock body { overflow: hidden; }
 	.tmm-burger {
@@ -211,51 +215,82 @@
 	.tmm-burger[aria-expanded="true"] .tmm-burger__icon::before { top: 0; transform: rotate(45deg); }
 	.tmm-burger[aria-expanded="true"] .tmm-burger__icon::after { top: 0; transform: rotate(-45deg); }
 
+	/* Feuille plein écran sous le header */
 	.tmm-bar {
 		display: none; position: fixed; left: 0; right: 0; top: var(--tmm-offset); bottom: 0;
-		z-index: var(--tmm-z); background: #fff; overflow-y: auto;
-		flex-direction: column; gap: 0; padding: 8px 0; border-top: 1px solid var(--tmm-line);
+		z-index: var(--tmm-z); background: #fff; overflow-y: auto; -webkit-overflow-scrolling: touch;
+		flex-direction: column; flex-wrap: nowrap; gap: 0; padding: 0; border-top: 1px solid var(--tmm-line);
 	}
 	.tmm.is-mobile-open .tmm-bar { display: flex; }
+	.tmm-bar > li { flex-shrink: 0; }
+
+	/* Niveau 1 */
 	.tmm-top__link, .tmm-top__btn {
-		width: 100%; justify-content: space-between; min-height: 52px; padding: 0 20px;
-		border-radius: 0; border-bottom: 1px solid var(--tmm-line);
-		text-transform: none; letter-spacing: 0; font-size: 18px; color: var(--tmm-ink);
+		width: 100%; justify-content: space-between; min-height: 56px; padding: 0 20px;
+		border-radius: 0; border-bottom: 1px solid var(--tmm-line); box-shadow: none !important;
+		text-transform: none; letter-spacing: 0; font-size: 18px; font-weight: 600; text-align: left;
+		color: var(--tmm-ink);
 	}
 	.tmm .tmm-top__link { color: var(--tmm-ink) !important; }
-	.tmm-top__btn[aria-expanded="true"] { background: transparent; color: var(--tmm-ink); }
-	.tmm-chevron { transform: rotate(-90deg); }
-	.tmm-top__btn[aria-expanded="true"] .tmm-chevron { transform: rotate(-90deg); }
+	.tmm .tmm-top__link, .tmm .tmm-top__btn { font-weight: 500; }  /* « .tmm button { font: inherit } » remet la graisse à zéro */
+	.tmm-top.is-current > .tmm-top__link,
+	.tmm-top.is-current > .tmm-top__btn { border-left: 4px solid var(--tmm-red); padding-left: 16px; }
+	.tmm-top__btn[aria-expanded="true"] { background: var(--tmm-bg-soft); color: var(--tmm-red); }
+	.tmm-chevron { width: 18px; height: 18px; transform: none; }
+	.tmm-top__btn[aria-expanded="true"] .tmm-chevron { transform: rotate(180deg); }
 
+	/* Le panneau devient un simple bloc dans le flux */
 	.tmm-panel {
-		position: fixed; top: var(--tmm-offset); bottom: 0; border-top: 1px solid var(--tmm-line);
-		box-shadow: none; overflow-y: auto; display: flex; flex-direction: column;
+		position: static; border-top: 0; box-shadow: none; background: var(--tmm-bg-soft);
+		border-bottom: 1px solid var(--tmm-line);
 	}
-	.tmm-panel__inner { display: block; padding: 0; flex-grow: 1; }
-	.tmm-back {
-		display: inline-flex; align-items: center; min-height: 44px; margin: 4px 8px; padding: 0 8px;
-		border: 0; background: transparent; color: var(--tmm-red); font-weight: 500; font-size: 15px;
-	}
-	.tmm-rail { border-right: 0; padding: 0 0 16px; }
-	.tmm-eyebrow { padding: 4px 16px 8px; }
-	.tmm-rail__btn { border-left: 0; border-bottom: 1px solid var(--tmm-line); padding: 10px 16px; }
-	.tmm-rail__btn[aria-expanded="true"] { background: transparent; color: var(--tmm-ink); font-weight: 500; }
-	.tmm-rail__btn[aria-expanded="true"] svg { color: #8A949C; }
+	.tmm-panel__inner { display: block; max-width: none; padding: 0; }
+	.tmm-rail { border-right: 0; padding: 0; }
+	.tmm-rail > .tmm-eyebrow { display: none; }  /* redit le titre du niveau 1 */
 
-	/* Niveau 1 : liste des rubriques. Niveau 2 : détail de la rubrique choisie. */
-	.tmm-panel:not(.show-detail) .tmm-detail { display: none; }
-	.tmm-panel.show-detail .tmm-rail { display: none; }
-	.tmm-detail { display: block; }
-	.tmm-detail__main { padding: 0 0 16px; }
-	.tmm-detail__head, .tmm-detail__desc { padding: 0 16px; }
-	.tmm-detail__title { font-size: 24px; }
+	/* Niveau 2 : rubriques */
+	.tmm-rail__btn {
+		min-height: 52px; padding: 10px 20px 10px 36px; border-left: 0;
+		border-bottom: 1px solid var(--tmm-line); font-size: 17px; font-weight: 500;
+	}
+	.tmm-rail__btn:hover { background: transparent; }
+	.tmm-rail__btn svg { transform: rotate(90deg); transition: transform .15s; }
+	.tmm-rail__btn[aria-expanded="true"] {
+		background: #fff; color: var(--tmm-red); font-weight: 600; border-left: 0;
+	}
+	.tmm-rail__btn[aria-expanded="true"] svg { transform: rotate(-90deg); color: currentColor; }
+	.tmm-rail__all { margin: 0; padding: 14px 20px 14px 36px; border-top: 0; }
+
+	/* Niveau 3 : liens de la rubrique, sous son bouton */
+	.tmm-detail { display: block; background: #fff; border-bottom: 1px solid var(--tmm-line); }
+	.tmm-detail__main { padding: 0 0 8px; }
+	.tmm-detail__title { display: none; }  /* redit le libellé de la rubrique */
+	.tmm-detail__head { display: block; margin: 0; padding: 0 20px 0 52px; }
+	.tmm-detail__more { display: flex; align-items: center; min-height: 44px; font-size: 15px; }
+	.tmm-detail__desc { padding: 0 20px 8px 52px; margin: 0 !important; font-size: 15px; }
 	.tmm-groups { display: block; margin-left: 0; }
 	.tmm-group:only-child .tmm-group__list { columns: auto; }
-	.tmm-group { margin-top: 16px; }
-	.tmm-group__title { border-bottom: 0; padding: 0 16px 4px !important; margin: 0 !important; }
-	.tmm-link { min-height: 48px; display: flex; align-items: center; padding: 0 16px; border-radius: 0; border-bottom: 1px solid #F0F2F3; font-size: 17px; }
-	.tmm-kids { margin: 4px 0 8px 16px !important; }
+	.tmm-group + .tmm-group { margin-top: 8px; }
+	.tmm-group__title { border-bottom: 0; padding: 12px 20px 4px 52px !important; margin: 0 !important; }
+	.tmm-link {
+		min-height: 48px; display: flex; align-items: center; padding: 0 20px 0 52px;
+		border-radius: 0; font-size: 16px;
+	}
+	.tmm-kids { margin: 0 0 8px 52px !important; }
 	.tmm-kids a { min-height: 40px; display: flex; align-items: center; font-size: 15px; }
-	.tmm-detail__aside { border-left: 0; padding: 8px 16px 16px; }
-	.tmm-foot__inner { padding: 14px 16px; }
+
+	/* Encart : gardé, compact. Accès directs et recherche : une seule fois en bas. */
+	.tmm-detail__aside { border-left: 0; padding: 4px 20px 12px 52px; }
+	.tmm-detail__aside .tmm-quick-wrap { display: none; }
+	.tmm-feat { padding: 16px; }
+	.tmm-feat__title { font-size: 18px; }
+	.tmm-panel > .tmm-foot { display: none; }
+
+	.tmm-mobile-extra { display: block; padding: 16px 0 32px; }
+	.tmm-mobile-extra .tmm-eyebrow { padding: 8px 20px; }
+	.tmm-mobile-extra .tmm-link { padding: 0 20px; border-bottom: 1px solid var(--tmm-line); }
+	.tmm-mobile-extra .tmm-foot { margin-top: 16px; border-top: 0; }
+	.tmm-foot__inner { padding: 16px 20px; }
+	.tmm-search { flex-basis: 100%; }
+	.tmm-search__field { max-width: none; }
 }

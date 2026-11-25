@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.1.2, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.1.3, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -17,7 +17,7 @@ Trois pistes ont été maquettées. La **piste A** a été retenue.
 - Maquettes (canvas Design) : https://claude.ai/artifact/AfcXccutzrkVpomtPsf9dC
   - **A · Maître-détail** (retenue) : rubriques à gauche, détail de la rubrique au centre, encart contextuel et accès directs à droite, recherche en pied de panneau.
   - **B · Colonnes allégées** : non retenue. Elle reste une alternative si le client refuse le changement de structure.
-  - **C · Mobile en tiroirs** : sert de référence pour le comportement mobile de la piste A.
+  - **C · Mobile en tiroirs** : abandonnée en 0.1.3. Le mobile est un arbre dépliable simple.
 
 ### Principes de design à respecter
 
@@ -37,7 +37,7 @@ tivoli-megamenu/
 ├── tivoli-megamenu.php     # Plugin : emplacements de menu, champs des éléments, arbre, rendu (shortcode)
 ├── assets/
 │   ├── megamenu.css        # Styles (desktop, écrans moyens, mobile ≤ 980 px), variables CSS
-│   └── megamenu.js         # Comportement : ouverture, survol avec délai, clavier, tiroirs mobile (vanilla JS)
+│   └── megamenu.js         # Comportement : ouverture, survol avec délai, clavier, arbre dépliable mobile (vanilla JS)
 ├── README.md
 └── CLAUDE.md               # (à créer) consignes pour Claude Code
 ```
@@ -165,6 +165,7 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 
 ### Historique
 
+- **0.1.3** : mobile en arbre dépliable simple (Entrée › Rubrique › liens, chaque niveau s'ouvre sous son bouton) au lieu des tiroirs façon desktop. Plus de boutons retour. Accès directs et recherche une seule fois en bas de l'arbre (`li.tmm-mobile-extra`). Le JS déplace chaque détail sous sa rubrique en mobile et le remet en place en desktop.
 - **0.1.2** : rendu sur Divi. Le panneau s'ancre sur la section du header (pleine largeur, collé sous la barre, contenu aligné sur elle). Liens forcés en `!important` contre le `a { color … !important }` du thème enfant. Grille de groupes adaptative, un groupe seul passe sur 2 colonnes. Colonne de droite masquée quand elle est vide.
 - **0.1.1** : le panneau passait sous d'autres éléments du header Divi (ligne en `z-index: 4`). Les parents du menu sont maintenant remontés au-dessus du reste (`:has()` en CSS et classe `.tmm-lift` posée en JS). Menus de test « accès directs » et « recherches fréquentes » créés sur tivoli.digima.be.
 - **0.1.0** : prototype maître-détail.
@@ -208,7 +209,7 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 - [ ] Desktop 1440 / 1280 / 1024 px : le panneau s'ouvre au survol et au clic, et se referme hors survol, sur Échap et en cas de clic ailleurs
 - [ ] Le changement de rubrique au survol ne saute pas quand la souris se déplace en diagonale
 - [ ] Le parcours complet au clavier fonctionne, sans piège de focus
-- [ ] Mobile 390 px : Menu › Offre de soins › Hospitalisation › page, avec les boutons retour à chaque niveau
+- [ ] Mobile 390 px : Menu › Offre de soins › Hospitalisation se déplient sous leur bouton, recherche en bas de l'arbre
 - [ ] Sur une page enfant, l'entrée de la barre est mise en évidence et le lien porte `aria-current`
 - [ ] L'encart rouge Urgences et le lien 112 sont visibles
 - [ ] La recherche renvoie vers `/?s=`

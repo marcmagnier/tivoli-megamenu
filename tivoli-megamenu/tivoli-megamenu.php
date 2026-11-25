@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.2
+ * Version:           0.1.3
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.2' );
+define( 'TMM_VERSION', '0.1.3' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -225,7 +225,6 @@ function tmm_render() {
 					<div class="tmm-panel" id="<?php echo esc_attr( $pid ); ?>" hidden>
 						<div class="tmm-panel__inner">
 							<div class="tmm-rail">
-								<button type="button" class="tmm-back" data-tmm-back>‹ Menu</button>
 								<p class="tmm-eyebrow"><?php echo esc_html( $top->title ); ?></p>
 								<ul class="tmm-rail__list">
 								<?php foreach ( $top->tmm_children as $i => $rub ) : ?>
@@ -246,7 +245,6 @@ function tmm_render() {
 							<?php $aside = trim( tmm_feature( $rub ) . $aside_extra ); ?>
 							<div class="tmm-detail<?php echo $aside ? '' : ' tmm-detail--full'; ?>" id="tmm-d-<?php echo (int) $rub->ID; ?>" <?php echo 0 === $i ? '' : 'hidden'; ?>>
 								<div class="tmm-detail__main">
-									<button type="button" class="tmm-back" data-tmm-back-rail>‹ <?php echo esc_html( $top->title ); ?></button>
 									<div class="tmm-detail__head">
 										<p class="tmm-detail__title"><?php echo esc_html( $rub->title ); ?></p>
 										<?php if ( tmm_url( $rub ) ) : ?>
@@ -291,6 +289,8 @@ function tmm_render() {
 				<?php endif; ?>
 				</li>
 			<?php endforeach; ?>
+			<?php // Mobile uniquement : accès directs et recherche, une seule fois en bas de l'arbre. ?>
+			<li class="tmm-mobile-extra"><?php echo $aside_extra . tmm_footer(); // phpcs:ignore -- HTML déjà échappé ?></li>
 		</ul>
 	</nav>
 	<?php
@@ -324,11 +324,11 @@ function tmm_quick_links() {
 	if ( ! $items ) {
 		return '';
 	}
-	$html = '<p class="tmm-eyebrow">Accès directs</p><ul class="tmm-quick">';
+	$html = '<div class="tmm-quick-wrap"><p class="tmm-eyebrow">Accès directs</p><ul class="tmm-quick">';
 	foreach ( $items as $it ) {
 		$html .= '<li>' . tmm_link( $it, 'tmm-link' ) . '</li>';
 	}
-	return $html . '</ul>';
+	return $html . '</ul></div>';
 }
 
 function tmm_footer() {

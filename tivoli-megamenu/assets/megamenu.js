@@ -1,4 +1,6 @@
-/* Tivoli Mega Menu – comportement (sans dépendance) */
+/* Tivoli Mega Menu – comportement (sans dépendance)
+   Desktop : panneau maître-détail (rubriques à gauche, détail à droite).
+   Mobile (≤ 980 px) : arbre dépliable simple. Chaque niveau s'ouvre sous son bouton. */
 (function () {
 	'use strict';
 
@@ -6,12 +8,8 @@
 	var isMobile = function () { return mq.matches; };
 
 	function byId(id) { return document.getElementById(id); }
-	function firstFocusable(el) {
-		return el && el.querySelector('a[href], button:not([hidden]), input');
-	}
+	function each(list, fn) { Array.prototype.forEach.call(list, fn); }
 
-	// Remonte les parents positionnés du menu (jusqu'au header) au-dessus du reste de la page,
-	// sinon le panneau reste piégé dans leur contexte d'empilement (voir megamenu.css).
 	// Dans Divi, le panneau s'ancre sur la section (pleine largeur) : les éléments entre
 	// le menu et la section repassent en statique, la section et ses parents sont remontés.
 	function lift(nav) {
@@ -33,9 +31,17 @@
 	function init(nav) {
 		var host = lift(nav);
 		var bar = nav.querySelector('.tmm-bar');
+		var tops = Array.prototype.slice.call(nav.querySelectorAll('.tmm-top__btn'));
+		var burger = nav.querySelector('.tmm-burger');
+		var panels = Array.prototype.slice.call(nav.querySelectorAll('.tmm-panel'));
+		var openBtn = null;
+		var openedByHoverAt = 0;
+		var tOpen, tClose;
 
-		// Desktop : colle le panneau sous la barre et aligne son contenu sur elle,
-		// quelle que soit la hauteur de la section qui sert d'ancre.
+		function panelOf(btn) { return byId(btn.getAttribute('aria-controls')); }
+		function railsOf(panel) { return Array.prototype.slice.call(panel.querySelectorAll('[data-tmm-rail]')); }
+
+		// Desktop : colle le panneau sous la barre et aligne son contenu sur elle.
 		function place(panel) {
 			if (isMobile()) {
 				panel.style.top = '';
@@ -50,13 +56,23 @@
 			if (host) panel.style.setProperty('--tmm-max', Math.round(b.width + 64) + 'px');
 		}
 
-		var tops = Array.prototype.slice.call(nav.querySelectorAll('.tmm-top__btn'));
-		var burger = nav.querySelector('.tmm-burger');
-		var openBtn = null;
-		var openedByHoverAt = 0;
-		var tOpen, tClose;
-
-		function panelOf(btn) { return byId(btn.getAttribute('aria-controls')); }
+		/* Mise en page selon le mode.
+		   Mobile : chaque détail est déplacé sous le bouton de sa rubrique, tout est replié.
+		   Desktop : les détails retournent à droite de la colonne, la 1re rubrique est active. */
+		function layout() {
+			var mobile = isMobile();
+			panels.forEach(function (panel) {
+				var inner = panel.querySelector('.tmm-panel__inner');
+				railsOf(panel).forEach(function (rail, i) {
+					var detail = byId(rail.getAttribute('aria-controls'));
+					if (mobile) rail.parentElement.appendChild(detail);
+					else inner.appendChild(detail);
+					var on = !mobile && i === 0;
+					rail.setAttribute('aria-expanded', on ? 'true' : 'false');
+					detail.hidden = !on;
+				});
+			});
+		}
 
 		function open(btn, viaHover) {
 			if (openBtn && openBtn !== btn) close(openBtn, false);
@@ -69,10 +85,8 @@
 		}
 
 		function close(btn, restoreFocus) {
-			var panel = panelOf(btn);
 			btn.setAttribute('aria-expanded', 'false');
-			panel.hidden = true;
-			panel.classList.remove('show-detail');
+			panelOf(btn).hidden = true;
 			if (openBtn === btn) openBtn = null;
 			if (!openBtn) nav.classList.remove('is-open');
 			if (restoreFocus) btn.focus();
@@ -84,16 +98,8 @@
 			btn.addEventListener('click', function () {
 				var expanded = btn.getAttribute('aria-expanded') === 'true';
 				// Le survol vient d'ouvrir le panneau : un clic juste après ne doit pas le refermer.
-				if (expanded && Date.now() - openedByHoverAt < 400) return;
-				if (expanded) {
-					close(btn, false);
-				} else {
-					open(btn, false);
-					if (isMobile()) {
-						var f = firstFocusable(panelOf(btn).querySelector('.tmm-rail'));
-						if (f) f.focus();
-					}
-				}
+				if (expanded && !isMobile() && Date.now() - openedByHoverAt < 400) return;
+				if (expanded) close(btn, false); else open(btn, false);
 			});
 
 			li.addEventListener('mouseenter', function () {
@@ -108,59 +114,48 @@
 			});
 		});
 
-		// Colonne des rubriques (maître) ↔ détail
-		Array.prototype.forEach.call(nav.querySelectorAll('.tmm-panel'), function (panel) {
-			var rails = Array.prototype.slice.call(panel.querySelectorAll('[data-tmm-rail]'));
+		// Rubriques : desktop = une seule active (maître-détail) ; mobile = déplier / replier.
+		panels.forEach(function (panel) {
+			var rails = railsOf(panel);
 			var tHover;
 
-			function activate(rail, drill) {
+			function activate(rail) {
 				rails.forEach(function (r) {
 					var on = r === rail;
 					r.setAttribute('aria-expanded', on ? 'true' : 'false');
 					byId(r.getAttribute('aria-controls')).hidden = !on;
 				});
-				if (drill && isMobile()) {
-					panel.classList.add('show-detail');
-					var back = byId(rail.getAttribute('aria-controls')).querySelector('[data-tmm-back-rail]');
-					if (back) back.focus();
-				}
+			}
+			function toggle(rail) {
+				var on = rail.getAttribute('aria-expanded') !== 'true';
+				rail.setAttribute('aria-expanded', on ? 'true' : 'false');
+				byId(rail.getAttribute('aria-controls')).hidden = !on;
 			}
 
 			rails.forEach(function (rail, i) {
-				rail.addEventListener('click', function () { activate(rail, true); });
+				rail.addEventListener('click', function () {
+					if (isMobile()) toggle(rail); else activate(rail);
+				});
 				rail.addEventListener('mouseenter', function () {
 					if (isMobile()) return;
 					clearTimeout(tHover);
 					// petit délai : évite de changer de rubrique en traversant la liste en diagonale
-					tHover = setTimeout(function () { activate(rail, false); }, 90);
+					tHover = setTimeout(function () { activate(rail); }, 90);
 				});
 				rail.addEventListener('mouseleave', function () { clearTimeout(tHover); });
 				rail.addEventListener('keydown', function (e) {
+					if (isMobile()) return;
 					if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
 						e.preventDefault();
 						var next = rails[(i + (e.key === 'ArrowDown' ? 1 : -1) + rails.length) % rails.length];
 						next.focus();
-						if (!isMobile()) activate(next, false);
-					} else if (e.key === 'ArrowRight' && !isMobile()) {
+						activate(next);
+					} else if (e.key === 'ArrowRight') {
 						e.preventDefault();
-						activate(rail, false);
-						var f = firstFocusable(byId(rail.getAttribute('aria-controls')).querySelector('.tmm-groups'));
+						activate(rail);
+						var f = byId(rail.getAttribute('aria-controls')).querySelector('.tmm-groups a[href]');
 						if (f) f.focus();
 					}
-				});
-			});
-
-			Array.prototype.forEach.call(panel.querySelectorAll('[data-tmm-back-rail]'), function (b) {
-				b.addEventListener('click', function () {
-					panel.classList.remove('show-detail');
-					var current = rails.filter(function (r) { return r.getAttribute('aria-expanded') === 'true'; })[0];
-					if (current) current.focus();
-				});
-			});
-			Array.prototype.forEach.call(panel.querySelectorAll('[data-tmm-back]'), function (b) {
-				b.addEventListener('click', function () {
-					var btn = tops.filter(function (t) { return panelOf(t) === panel; })[0];
-					if (btn) close(btn, true);
 				});
 			});
 		});
@@ -187,15 +182,18 @@
 			if (e.relatedTarget && !nav.contains(e.relatedTarget)) close(openBtn, false);
 		});
 		document.addEventListener('click', function (e) {
-			if (openBtn && !nav.contains(e.target)) close(openBtn, false);
+			if (openBtn && !isMobile() && !nav.contains(e.target)) close(openBtn, false);
 		});
+
 		var onChange = function () {
 			if (openBtn) close(openBtn, false);
 			if (burger && !isMobile() && nav.classList.contains('is-mobile-open')) burger.click();
+			layout();
 		};
 		if (mq.addEventListener) mq.addEventListener('change', onChange); else mq.addListener(onChange);
+		layout();
 	}
 
-	function boot() { Array.prototype.forEach.call(document.querySelectorAll('[data-tmm]'), init); }
+	function boot() { each(document.querySelectorAll('[data-tmm]'), init); }
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();
