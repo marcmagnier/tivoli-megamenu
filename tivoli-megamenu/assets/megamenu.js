@@ -12,18 +12,44 @@
 
 	// Remonte les parents positionnés du menu (jusqu'au header) au-dessus du reste de la page,
 	// sinon le panneau reste piégé dans leur contexte d'empilement (voir megamenu.css).
+	// Dans Divi, le panneau s'ancre sur la section (pleine largeur) : les éléments entre
+	// le menu et la section repassent en statique, la section et ses parents sont remontés.
 	function lift(nav) {
+		var host = nav.closest ? nav.closest('.et_pb_section') : null;
 		var el = nav.parentElement;
 		while (el && el !== document.body) {
-			var cs = window.getComputedStyle(el);
-			if (cs.position !== 'static' || cs.zIndex !== 'auto') el.classList.add('tmm-lift');
+			if (host && el !== host && host.contains(el)) {
+				el.classList.add('tmm-static');
+			} else {
+				var cs = window.getComputedStyle(el);
+				if (cs.position !== 'static' || cs.zIndex !== 'auto') el.classList.add('tmm-lift');
+			}
 			if (el.matches('.et-l--header, header, #main-header')) break;
 			el = el.parentElement;
 		}
+		return host;
 	}
 
 	function init(nav) {
-		lift(nav);
+		var host = lift(nav);
+		var bar = nav.querySelector('.tmm-bar');
+
+		// Desktop : colle le panneau sous la barre et aligne son contenu sur elle,
+		// quelle que soit la hauteur de la section qui sert d'ancre.
+		function place(panel) {
+			if (isMobile()) {
+				panel.style.top = '';
+				panel.style.removeProperty('--tmm-max');
+				return;
+			}
+			var anchor = panel.offsetParent;
+			if (!anchor) return;
+			var a = anchor.getBoundingClientRect();
+			var b = bar.getBoundingClientRect();
+			panel.style.top = Math.round(b.bottom - a.top) + 'px';
+			if (host) panel.style.setProperty('--tmm-max', Math.round(b.width + 64) + 'px');
+		}
+
 		var tops = Array.prototype.slice.call(nav.querySelectorAll('.tmm-top__btn'));
 		var burger = nav.querySelector('.tmm-burger');
 		var openBtn = null;
@@ -36,6 +62,7 @@
 			if (openBtn && openBtn !== btn) close(openBtn, false);
 			btn.setAttribute('aria-expanded', 'true');
 			panelOf(btn).hidden = false;
+			place(panelOf(btn));
 			openBtn = btn;
 			nav.classList.add('is-open');
 			if (viaHover) openedByHoverAt = Date.now();

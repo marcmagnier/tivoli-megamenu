@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.1
+ * Version:           0.1.2
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.1' );
+define( 'TMM_VERSION', '0.1.2' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -243,7 +243,8 @@ function tmm_render() {
 							</div>
 
 							<?php foreach ( $top->tmm_children as $i => $rub ) : ?>
-							<div class="tmm-detail" id="tmm-d-<?php echo (int) $rub->ID; ?>" <?php echo 0 === $i ? '' : 'hidden'; ?>>
+							<?php $aside = trim( tmm_feature( $rub ) . $aside_extra ); ?>
+							<div class="tmm-detail<?php echo $aside ? '' : ' tmm-detail--full'; ?>" id="tmm-d-<?php echo (int) $rub->ID; ?>" <?php echo 0 === $i ? '' : 'hidden'; ?>>
 								<div class="tmm-detail__main">
 									<button type="button" class="tmm-back" data-tmm-back-rail>‹ <?php echo esc_html( $top->title ); ?></button>
 									<div class="tmm-detail__head">
@@ -279,10 +280,9 @@ function tmm_render() {
 									<?php endforeach; ?>
 									</div>
 								</div>
-								<div class="tmm-detail__aside">
-									<?php echo tmm_feature( $rub ); // phpcs:ignore ?>
-									<?php echo $aside_extra; // phpcs:ignore ?>
-								</div>
+								<?php if ( $aside ) : ?>
+								<div class="tmm-detail__aside"><?php echo $aside; // phpcs:ignore -- HTML déjà échappé ?></div>
+								<?php endif; ?>
 							</div>
 							<?php endforeach; ?>
 						</div>

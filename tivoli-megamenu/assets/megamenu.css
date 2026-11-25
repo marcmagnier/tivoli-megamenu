@@ -29,13 +29,39 @@
    megamenu.js ajoute la classe .tmm-lift sur les parents pour les autres cas. */
 .et-l--header:has(.tmm),
 .et_pb_section:has(.tmm),
-.et_pb_row:has(.tmm),
-.et_pb_column:has(.tmm),
-.et_pb_module:has(.tmm),
 .tmm-lift {
 	z-index: 99990 !important;  /* !important : écrase les z-index en ligne posés par Divi */
 	overflow: visible !important;
 }
+/* Le panneau s'ancre sur la section Divi (pleine largeur) et non sur le module Code :
+   la ligne, la colonne et le module entre les deux repassent en position statique. */
+.et_pb_section .et_pb_row:has(.tmm),
+.et_pb_section .et_pb_column:has(.tmm),
+.et_pb_section .et_pb_module:has(.tmm),
+.et_pb_section .et_pb_code_inner:has(.tmm),
+.tmm-static {
+	position: static !important;
+	overflow: visible !important;
+}
+
+/* Le thème enfant force « a { color: … !important } » sur tout le site :
+   on doit répondre en !important pour garder les couleurs du menu. */
+.tmm .tmm-link,
+.tmm .tmm-kids a,
+.tmm .tmm-group__title a,
+.tmm .tmm-chip { color: var(--tmm-ink) !important; }
+.tmm .tmm-kids a { color: var(--tmm-muted) !important; }
+.tmm .tmm-group__title a { color: var(--tmm-muted) !important; }
+.tmm .tmm-link:hover,
+.tmm .tmm-link[aria-current="page"],
+.tmm .tmm-kids a:hover,
+.tmm .tmm-group__title a:hover,
+.tmm .tmm-chip:hover,
+.tmm .tmm-detail__more,
+.tmm .tmm-rail__all,
+.tmm .tmm-top__link { color: var(--tmm-red) !important; }
+.tmm .tmm-top__link:hover { color: var(--tmm-ink) !important; }
+.tmm .tmm-feat__cta { color: var(--tmm-ink) !important; }
 
 /* ---------- Barre principale ---------- */
 .tmm-burger { display: none; }
@@ -105,7 +131,12 @@
 .tmm-detail__title { font-size: 28px; font-weight: 700; line-height: 1.2; color: var(--tmm-ink); }
 .tmm-detail__more { color: var(--tmm-red); font-weight: 500; font-size: 15px; }
 .tmm-detail__desc { color: var(--tmm-muted); font-size: 16px; margin-bottom: 24px !important; }
-.tmm-groups { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+/* Autant de colonnes que la place le permet (≥ 220 px) ; un groupe seul s'étale sur 2 colonnes. */
+.tmm-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; margin-left: -10px; }
+.tmm-group:only-child .tmm-group__list { columns: 2 220px; column-gap: 28px; }
+.tmm-group__list > li { break-inside: avoid; }
+/* Sans encart ni accès directs, le détail prend toute la largeur */
+.tmm-detail--full { grid-template-columns: minmax(0, 1fr); }
 .tmm-group__title {
 	font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
 	color: var(--tmm-muted); padding: 0 10px 8px !important; margin-bottom: 6px !important;
@@ -162,7 +193,6 @@
 @media (max-width: 1200px) and (min-width: 981px) {
 	.tmm-detail { grid-template-columns: minmax(0, 1fr); }
 	.tmm-detail__aside { border-left: 0; padding: 0 36px 28px; flex-direction: row; flex-wrap: wrap; }
-	.tmm-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ---------- Mobile : navigation en tiroirs ---------- */
@@ -192,6 +222,7 @@
 		border-radius: 0; border-bottom: 1px solid var(--tmm-line);
 		text-transform: none; letter-spacing: 0; font-size: 18px; color: var(--tmm-ink);
 	}
+	.tmm .tmm-top__link { color: var(--tmm-ink) !important; }
 	.tmm-top__btn[aria-expanded="true"] { background: transparent; color: var(--tmm-ink); }
 	.tmm-chevron { transform: rotate(-90deg); }
 	.tmm-top__btn[aria-expanded="true"] .tmm-chevron { transform: rotate(-90deg); }
@@ -218,7 +249,8 @@
 	.tmm-detail__main { padding: 0 0 16px; }
 	.tmm-detail__head, .tmm-detail__desc { padding: 0 16px; }
 	.tmm-detail__title { font-size: 24px; }
-	.tmm-groups { display: block; }
+	.tmm-groups { display: block; margin-left: 0; }
+	.tmm-group:only-child .tmm-group__list { columns: auto; }
 	.tmm-group { margin-top: 16px; }
 	.tmm-group__title { border-bottom: 0; padding: 0 16px 4px !important; margin: 0 !important; }
 	.tmm-link { min-height: 48px; display: flex; align-items: center; padding: 0 16px; border-radius: 0; border-bottom: 1px solid #F0F2F3; font-size: 17px; }

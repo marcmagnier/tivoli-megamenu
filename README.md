@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.1.1, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.1.2, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -165,6 +165,7 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 
 ### Historique
 
+- **0.1.2** : rendu sur Divi. Le panneau s'ancre sur la section du header (pleine largeur, collé sous la barre, contenu aligné sur elle). Liens forcés en `!important` contre le `a { color … !important }` du thème enfant. Grille de groupes adaptative, un groupe seul passe sur 2 colonnes. Colonne de droite masquée quand elle est vide.
 - **0.1.1** : le panneau passait sous d'autres éléments du header Divi (ligne en `z-index: 4`). Les parents du menu sont maintenant remontés au-dessus du reste (`:has()` en CSS et classe `.tmm-lift` posée en JS). Menus de test « accès directs » et « recherches fréquentes » créés sur tivoli.digima.be.
 - **0.1.0** : prototype maître-détail.
 
