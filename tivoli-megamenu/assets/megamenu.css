@@ -65,14 +65,18 @@
 
 /* ---------- Barre principale ---------- */
 .tmm-burger { display: none; }
-.tmm-bar { display: flex; flex-wrap: wrap; align-items: stretch; gap: 4px; }
+.tmm-bar { display: flex; flex-wrap: wrap; align-items: stretch; gap: 2px; }
 .tmm-top__link,
 .tmm-top__btn {
 	display: inline-flex; align-items: center; gap: 6px;
-	min-height: 48px; padding: 0 14px;
+	min-height: 48px; padding: 0 11px;
 	border: 0; border-radius: 6px 6px 0 0; background: transparent;
-	color: var(--tmm-red); font-size: 16px; font-weight: 500;
-	letter-spacing: .02em; text-transform: uppercase;
+	color: var(--tmm-red); font-size: 15px; font-weight: 500;
+	letter-spacing: .01em; text-transform: uppercase;
+}
+/* Écrans moyens : la colonne du menu (à côté des logos) se rétrécit, la barre reste sur une ligne */
+@media (min-width: 981px) and (max-width: 1180px) {
+	.tmm-top__link, .tmm-top__btn { padding: 0 8px; font-size: 14px; letter-spacing: 0; }
 }
 .tmm-top__link:hover, .tmm-top__btn:hover { color: var(--tmm-ink); }
 .tmm-top.is-current > .tmm-top__link,
@@ -317,16 +321,18 @@
 	--tmm-tb-ink: #1E4E5A;        /* liens et icônes */
 	--tmm-tb-red: #EC3A3A;        /* bouton rouge */
 	--tmm-tb-teal: #134B52;       /* bouton pétrole */
-	--tmm-tb-gap: 16px;        /* la rangée Divi est limitée à 1080 px */
+	--tmm-tb-gap: 16px;
 	font-family: inherit;
 }
+/* La rangée Divi (1080 px max) est trop étroite pour la barre complète : on l'élargit. */
+.et_pb_row:has(.tmm-topbar) { max-width: 1320px !important; width: 94% !important; }
 .tmm-topbar__list {
 	display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
 	gap: 8px var(--tmm-tb-gap); list-style: none; margin: 0; padding: 0;
 }
 .tmm-topbar__item { margin: 0; padding: 0; list-style: none; }
 .tmm-topbar .tmm-topbar__link {
-	display: inline-flex; align-items: center; gap: 8px; min-height: 40px;
+	display: inline-flex; align-items: center; gap: 5px; min-height: 40px;
 	color: var(--tmm-tb-ink) !important;  /* le thème enfant force la couleur des liens */
 	font-size: 15px; font-weight: 400; line-height: 1.2; text-decoration: none; white-space: nowrap;
 }
@@ -341,7 +347,7 @@
 /* Boutons */
 .tmm-topbar .tmm-btn-red .tmm-topbar__link,
 .tmm-topbar .tmm-btn-teal .tmm-topbar__link {
-	gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 4px; color: #fff !important; font-size: 14px;
+	gap: 5px; min-height: 36px; padding: 0 12px; border-radius: 4px; color: #fff !important; font-size: 14px;
 }
 .tmm-topbar .tmm-btn-red .tmm-ico i,
 .tmm-topbar .tmm-btn-teal .tmm-ico i { font-size: 16px !important; }
@@ -351,18 +357,19 @@
 .tmm-topbar .tmm-btn-teal .tmm-topbar__link:hover { color: #fff !important; filter: brightness(1.12); }
 .tmm-topbar .tmm-btn-red + .tmm-btn-teal { margin-left: calc(10px - var(--tmm-tb-gap)); }
 
-/* Icône seule (réseaux sociaux, ou « Masquer le libellé » dans Menu Icons) */
+/* Icône seule (« Masquer le libellé » dans Menu Icons) */
 .tmm-topbar .is-icon-only .tmm-topbar__link { justify-content: center; min-width: 40px; }
-.tmm-topbar .is-icon-only .tmm-label {
+.tmm-topbar .is-icon-only .tmm-label,
+.tmm-topbar .tmm-sr {
 	position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
 	overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-.tmm-topbar .tmm-social + .tmm-social { margin-left: calc(12px - var(--tmm-tb-gap)); }
-.tmm-topbar .tmm-social .tmm-ico i { font-size: 22px !important; }
-/* Couleurs de marque, comme sur le site actuel (détectées d'après l'URL) */
-.tmm-topbar .tmm-social a[href*="linkedin."] { color: #0A66C2 !important; }
-.tmm-topbar .tmm-social a[href*="youtube."] { color: #E62117 !important; }
-.tmm-topbar .tmm-social a:hover { opacity: .75; }
+/* Réseaux sociaux : icônes SVG colorées fournies par le plugin */
+.tmm-topbar .tmm-social + .tmm-social { margin-left: calc(8px - var(--tmm-tb-gap)); }
+.tmm-topbar .tmm-social .tmm-topbar__link { justify-content: center; min-width: 32px; }
+.tmm-topbar .tmm-social__svg { display: block; width: auto; height: 28px; }
+.tmm-topbar .tmm-social--youtube .tmm-social__svg { height: 30px; }
+.tmm-topbar .tmm-social a:hover { opacity: .8; }
 
 /* Écrans moyens et mobile : les liens simples passent en icône seule, les boutons restent lisibles */
 @media (max-width: 1200px) {
