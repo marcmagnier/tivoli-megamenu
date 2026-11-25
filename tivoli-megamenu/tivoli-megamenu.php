@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.4
+ * Version:           0.1.5
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.4' );
+define( 'TMM_VERSION', '0.1.5' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -138,10 +138,27 @@ function tmm_url( $it ) {
 	return ( '' === $url || '#' === $url ) ? '' : $url;
 }
 
+/**
+ * Icône associée à l'élément par le plugin « Menu Icons » (Codeinwp), s'il est actif.
+ * Le plugin ne l'ajoute qu'aux menus rendus par wp_nav_menu() : on l'appelle donc nous-mêmes.
+ * Ses feuilles de style (polices d'icônes) sont déjà chargées sur toutes les pages.
+ */
+function tmm_icon( $it ) {
+	if ( ! class_exists( 'Menu_Icons_Meta' ) || ! class_exists( 'Menu_Icons_Front_End' ) ) {
+		return '';
+	}
+	$icon = Menu_Icons_Front_End::get_icon( Menu_Icons_Meta::get( $it->ID ) );
+	return $icon ? '<span class="tmm-ico" aria-hidden="true">' . $icon . '</span>' : '';
+}
+
 function tmm_link( $it, $class = '' ) {
-	$url = tmm_url( $it );
+	$url  = tmm_url( $it );
+	$icon = tmm_icon( $it );
+	if ( $icon ) {
+		$class = trim( $class . ' has-ico' );
+	}
 	if ( ! $url ) {
-		return '<span class="' . esc_attr( $class ) . '">' . esc_html( $it->title ) . '</span>';
+		return '<span class="' . esc_attr( $class ) . '">' . $icon . esc_html( $it->title ) . '</span>';
 	}
 	$attrs = ' href="' . esc_url( $url ) . '"';
 	if ( $class ) {
@@ -155,7 +172,8 @@ function tmm_link( $it, $class = '' ) {
 	} elseif ( ! empty( $it->xfn ) ) {
 		$attrs .= ' rel="' . esc_attr( $it->xfn ) . '"';
 	}
-	return '<a' . $attrs . '>' . esc_html( $it->title ) . '</a>';
+	$label = $icon ? $icon . '<span class="tmm-label">' . esc_html( $it->title ) . '</span>' : esc_html( $it->title );
+	return '<a' . $attrs . '>' . $label . '</a>';
 }
 
 /** Regroupe les enfants d'une rubrique : éléments « Titre de groupe » + éléments libres consécutifs. */

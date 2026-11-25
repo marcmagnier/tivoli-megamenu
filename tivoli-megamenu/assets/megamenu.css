@@ -152,6 +152,20 @@
 .tmm-kids a { display: block; padding: 5px 0; font-size: 14px; color: var(--tmm-muted); }
 .tmm-kids a:hover { color: var(--tmm-red); }
 
+/* Icônes du plugin « Menu Icons » : pastille alignée à gauche du libellé.
+   Taille et alignement normalisés (le plugin pose un style en ligne sur l'icône). */
+.tmm .has-ico { display: flex; align-items: center; gap: 12px; }
+.tmm-ico {
+	flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+	width: 36px; height: 36px; border-radius: 8px; background: var(--tmm-bg-soft); color: var(--tmm-teal);
+}
+.tmm-ico i, .tmm-ico .menu-icon { font-size: 18px !important; line-height: 1; vertical-align: middle !important; margin: 0 !important; }
+.tmm-ico img, .tmm-ico svg { width: 20px !important; height: 20px !important; margin: 0 !important; }
+.tmm .has-ico:hover .tmm-ico { background: #fff; color: var(--tmm-red); }
+.tmm-chip.has-ico, .tmm-top__link.has-ico { gap: 6px; }
+.tmm-chip .tmm-ico, .tmm-top__link .tmm-ico { width: auto; height: auto; background: none; }
+.tmm-chip .tmm-ico i, .tmm-top__link .tmm-ico i { font-size: 14px !important; }
+
 /* Colonne de droite */
 .tmm-detail__aside {
 	padding: 28px 0 28px 28px; border-left: 1px solid var(--tmm-line);

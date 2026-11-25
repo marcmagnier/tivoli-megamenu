@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.1.4, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.1.5, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -165,6 +165,7 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 
 ### Historique
 
+- **0.1.5** : prise en charge du plugin « Menu Icons » (Codeinwp). L'icône choisie sur un élément de menu s'affiche devant son libellé (accès directs en pastille, chips et liens en petit format). Sans le plugin, rien ne change.
 - **0.1.4** : la recherche envoie vers la page de résultats personnalisée `/resultat-de-la-recherche/?asp=` (filtres `tmm_search_action` et `tmm_search_param`).
 - **0.1.3** : mobile en arbre dépliable simple (Entrée › Rubrique › liens, chaque niveau s'ouvre sous son bouton) au lieu des tiroirs façon desktop. Plus de boutons retour. Accès directs et recherche une seule fois en bas de l'arbre (`li.tmm-mobile-extra`). Le JS déplace chaque détail sous sa rubrique en mobile et le remet en place en desktop.
 - **0.1.2** : rendu sur Divi. Le panneau s'ancre sur la section du header (pleine largeur, collé sous la barre, contenu aligné sur elle). Liens forcés en `!important` contre le `a { color … !important }` du thème enfant. Grille de groupes adaptative, un groupe seul passe sur 2 colonnes. Colonne de droite masquée quand elle est vide.
