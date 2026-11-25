@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Tivoli Mega Menu
  * Description:       Mega menu « maître-détail », barre supérieure et en-tête complet, pilotés depuis Apparence › Menus. Shortcodes [tivoli_header] (tout l’en-tête), [tivoli_megamenu] et [tivoli_topbar].
- * Version:           0.3.1
+ * Version:           0.3.2
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.3.1' );
+define( 'TMM_VERSION', '0.3.2' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
