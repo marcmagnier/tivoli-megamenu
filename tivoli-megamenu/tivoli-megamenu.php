@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name:       Tivoli Mega Menu
- * Description:       Mega menu « maître-détail » piloté depuis Apparence › Menus. Affichage via le shortcode [tivoli_megamenu] (ex. dans le header du Divi Theme Builder).
- * Version:           0.1.5
+ * Description:       Mega menu « maître-détail » et barre supérieure, pilotés depuis Apparence › Menus. Shortcodes [tivoli_megamenu] et [tivoli_topbar] (ex. dans le header du Divi Theme Builder).
+ * Version:           0.2.0
  * Requires at least: 5.4
  * Requires PHP:      7.4
  * Text Domain:       tivoli-megamenu
@@ -10,7 +10,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TMM_VERSION', '0.1.5' );
+define( 'TMM_VERSION', '0.2.0' );
 define( 'TMM_URL', plugin_dir_url( __FILE__ ) );
 
 /* -------------------------------------------------------------------------
@@ -21,6 +21,7 @@ add_action( 'after_setup_theme', function () {
 		'tmm_main'    => __( 'Mega menu – navigation principale', 'tivoli-megamenu' ),
 		'tmm_quick'   => __( 'Mega menu – accès directs (colonne de droite)', 'tivoli-megamenu' ),
 		'tmm_popular' => __( 'Mega menu – recherches fréquentes', 'tivoli-megamenu' ),
+		'tmm_topbar'  => __( 'Barre supérieure', 'tivoli-megamenu' ),
 	) );
 }, 20 );
 
@@ -372,4 +373,46 @@ function tmm_footer() {
 		$html .= '</div>';
 	}
 	return $html . '</div></div>';
+}
+
+/* -------------------------------------------------------------------------
+ * 5. Barre supérieure (shortcode [tivoli_topbar])
+ *
+ * Menu à plat assigné à l'emplacement « Barre supérieure ».
+ * Icônes : plugin Menu Icons. Style d'un élément : champ natif « Classes CSS »
+ * (Apparence › Menus › Options de l'écran) :
+ *   tmm-btn-red   bouton rouge (ex. « 50 ans du CHU Tivoli »)
+ *   tmm-btn-teal  bouton pétrole (ex. « Prendre rendez-vous »)
+ *   tmm-social    icône seule (réseaux sociaux) ; le libellé reste lu par les lecteurs d'écran
+ * L'option « Masquer le libellé » de Menu Icons donne aussi une icône seule.
+ * ---------------------------------------------------------------------- */
+add_shortcode( 'tivoli_topbar', 'tmm_topbar_render' );
+
+function tmm_topbar_render() {
+	$items = tmm_tree( 'tmm_topbar' );
+	if ( ! $items ) {
+		return current_user_can( 'edit_theme_options' )
+			? '<p><strong>Tivoli Mega Menu :</strong> assignez un menu à l’emplacement « Barre supérieure » (Apparence › Menus).</p>'
+			: '';
+	}
+	wp_enqueue_style( 'tmm' );
+
+	$allowed = array( 'tmm-btn-red', 'tmm-btn-teal', 'tmm-social' );
+	$html    = '<nav class="tmm-topbar" aria-label="' . esc_attr__( 'Liens utiles', 'tivoli-megamenu' ) . '"><ul class="tmm-topbar__list">';
+	foreach ( $items as $it ) {
+		$classes = array_intersect( (array) $it->classes, $allowed );
+		if ( class_exists( 'Menu_Icons_Meta' ) ) {
+			$meta = Menu_Icons_Meta::get( $it->ID );
+			if ( ! empty( $meta['hide_label'] ) ) {
+				$classes[] = 'is-icon-only';
+			}
+		}
+		if ( in_array( 'tmm-social', $classes, true ) ) {
+			$classes[] = 'is-icon-only';
+		}
+		$html .= '<li class="' . esc_attr( implode( ' ', array_unique( array_merge( array( 'tmm-topbar__item' ), $classes ) ) ) ) . '">';
+		$html .= tmm_link( $it, 'tmm-topbar__link' );
+		$html .= '</li>';
+	}
+	return $html . '</ul></nav>';
 }

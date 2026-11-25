@@ -4,7 +4,7 @@ Plugin WordPress qui ajoute un mega menu « maître-détail » au site du CHU Ti
 
 Le menu est entièrement géré depuis **Apparence › Menus**. Il s'affiche avec le shortcode `[tivoli_megamenu]`, placé dans le header global du **Divi Theme Builder**.
 
-> Statut : **v0.1.5, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
+> Statut : **v0.2.0, prototype**. Installé sur https://tivoli.digima.be/ (visible connecté) ; premiers essais sur Divi en cours.
 
 ---
 
@@ -55,6 +55,7 @@ Le plugin n'a aucune dépendance : pas de jQuery, pas de build, pas de Composer.
 | `tmm_main`: Mega menu – navigation principale | Barre principale et panneaux | Oui |
 | `tmm_quick`: Mega menu – accès directs | Liens sous l'encart, colonne de droite | Non |
 | `tmm_popular`: Mega menu – recherches fréquentes | Liens « chips » dans le pied du panneau | Non |
+| `tmm_topbar`: Barre supérieure | Barre de liens utiles au-dessus du header (shortcode `[tivoli_topbar]`) | Non |
 
 ### Convention de profondeur (Apparence › Menus)
 
@@ -149,6 +150,29 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 
 ---
 
+### Barre supérieure (`[tivoli_topbar]`)
+
+Second shortcode du même plugin. Il affiche le menu de l'emplacement « Barre supérieure » à plat (un seul niveau) : téléphone, Agenda, Actualités, Jobs et stages, Contact, deux boutons, puis les réseaux sociaux. Il est indépendant du mega menu : toutes ses règles CSS sont préfixées `.tmm-topbar`.
+
+- **Divi** : ajouter une section au-dessus du header dans Theme Builder › en-tête global, avec un module Code contenant `[tivoli_topbar]`.
+- **Icônes** : plugin Menu Icons, comme pour le mega menu.
+- **Style d'un élément** : champ natif « Classes CSS » (Options de l'écran › Classes CSS).
+
+| Classe | Rendu |
+|---|---|
+| `tmm-btn-red` | bouton rouge (« 50 ans du CHU Tivoli ») |
+| `tmm-btn-teal` | bouton pétrole (« Prendre rendez-vous ») |
+| `tmm-social` | icône seule, libellé gardé pour les lecteurs d'écran ; LinkedIn et YouTube prennent leur couleur de marque |
+
+L'option « Masquer le libellé » de Menu Icons donne aussi une icône seule.
+
+Comportement responsive :
+- ≤ 1500 px : espacements et texte réduits.
+- ≤ 1200 px : les liens simples passent en icône seule.
+- ≤ 600 px : une ligne d'icônes, puis les deux boutons côte à côte ; les réseaux sociaux sont masqués.
+
+Variables : `--tmm-tb-ink`, `--tmm-tb-red`, `--tmm-tb-teal`, `--tmm-tb-gap` sur `.tmm-topbar`.
+
 ## 6. Accessibilité (exigences)
 
 - Les déclencheurs sont de vrais `<button>`, avec `aria-expanded` et `aria-controls`. Les liens sont de vrais `<a href>`.
@@ -165,6 +189,7 @@ Les couleurs viennent du site actuel et ont été choisies pour un contraste d'a
 
 ### Historique
 
+- **0.2.0** : nouveau shortcode `[tivoli_topbar]` (barre supérieure, emplacement `tmm_topbar`). Boutons et réseaux sociaux via le champ « Classes CSS », icônes via Menu Icons, responsive jusqu'à 375 px. Le mega menu n'est pas modifié.
 - **0.1.5** : prise en charge du plugin « Menu Icons » (Codeinwp). L'icône choisie sur un élément de menu s'affiche devant son libellé (accès directs en pastille, chips et liens en petit format). Sans le plugin, rien ne change.
 - **0.1.4** : la recherche envoie vers la page de résultats personnalisée `/resultat-de-la-recherche/?asp=` (filtres `tmm_search_action` et `tmm_search_param`).
 - **0.1.3** : mobile en arbre dépliable simple (Entrée › Rubrique › liens, chaque niveau s'ouvre sous son bouton) au lieu des tiroirs façon desktop. Plus de boutons retour. Accès directs et recherche une seule fois en bas de l'arbre (`li.tmm-mobile-extra`). Le JS déplace chaque détail sous sa rubrique en mobile et le remet en place en desktop.
